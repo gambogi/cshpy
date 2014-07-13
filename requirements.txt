@@ -1,0 +1,4 @@
+csh==0.1
+python-ldap==2.4.15
+requests==2.3.0
+wsgiref==0.1.2
