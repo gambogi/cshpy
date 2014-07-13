@@ -22,6 +22,7 @@ class LDAP:
         self.ldap = pyldap.initialize(host)
         self.ldap.set_option(pyldap.OPT_X_TLS_DEMAND, True)
         self.ldap.set_option(pyldap.OPT_DEBUG_LEVEL, 255)
+        self.objects=objects
 
         if app:
             self.ldap.simple_bind('uid=' + user + ',' + base, password)
