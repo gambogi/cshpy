@@ -148,7 +148,8 @@ class LDAP:
                 if 'eboard' in member[1]['groups']:
                     eboard_search = self.search(base=self.committees,
                                                 head=member[0])
-                    member[1]['committee'] = eboard_search[0][1]['cn'][0]
+                    if eboard_search:
+                        member[1]['committee'] = eboard_search[0][1]['cn'][0]
         if self.objects:
             return self.memberObjects(result)
         finalResult = self.trimResult(result) if trim else result
