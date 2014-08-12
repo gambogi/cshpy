@@ -1,6 +1,6 @@
 from setuptools import setup
 setup( name = 'csh'
-    , version = '0.1.1'
+    , version = '0.1.2'
     , description = 'A collection of utilities for interacting with CSH services.'
     , author = 'Matt Gambogi'
     , author_email = 'gambogi@csh.rit.edu'

@@ -151,8 +151,8 @@ class LDAP:
                                                 head=member[0])
                     if eboard_search:
                         member[1]['committee'] = eboard_search[0][1]['cn'][0]
-        if self.objects:
-            return self.memberObjects(result)
+            if self.objects:
+                return self.memberObjects(result)
         finalResult = self.trimResult(result) if trim else result
         return finalResult
 
@@ -172,11 +172,8 @@ class LDAP:
 
     def memberObjects(self, searchResults):
         results = []
-        print 'starting....'
         for result in searchResults:
-            print 'hi!'
             newMember = Member(result, ldap=self)
-            print newMember
             results.append(newMember)
         return results
 
@@ -193,4 +190,4 @@ def dateFromLDAPTimestamp(timestamp):
         day = datetime.strptime(timestamp, '%Y%m%d')
         return date(year=day.year, month=day.month, day=day.day)
     except:
-        print(timestamp)
+        print timestamp
