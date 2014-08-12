@@ -4,6 +4,7 @@ import ldap.modlist
 import re
 from datetime import datetime, date
 from copy import deepcopy
+from member import Member
 
 
 class LDAP:
@@ -22,7 +23,7 @@ class LDAP:
         self.ldap = pyldap.initialize(host)
         self.ldap.set_option(pyldap.OPT_X_TLS_DEMAND, True)
         self.ldap.set_option(pyldap.OPT_DEBUG_LEVEL, 255)
-        self.objects=objects
+        self.objects = objects
 
         if app:
             self.ldap.simple_bind('uid=' + user + ',' + base, password)
@@ -171,8 +172,11 @@ class LDAP:
 
     def memberObjects(self, searchResults):
         results = []
+        print 'starting....'
         for result in searchResults:
+            print 'hi!'
             newMember = Member(result, ldap=self)
+            print newMember
             results.append(newMember)
         return results
 

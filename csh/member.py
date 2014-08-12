@@ -1,5 +1,3 @@
-from ldapapi import LDAP as ldap
-
 class Member(object):
     def __init__(self, member, ldap=None):
         """ Creates and returns a member object from which LDAP fields
@@ -106,7 +104,7 @@ class Member(object):
         """
         if not self.birthday:
             return None
-        return ldap.dateFromLDAPTimestamp(self.birthday)
+        return self.ldap.dateFromLDAPTimestamp(self.birthday)
 
     def joindate(self):
         """ Converts the user's join date (if it exists) to a datetime.date
@@ -115,7 +113,7 @@ class Member(object):
         if not self.memberSince:
             return None
         joined = self.memberSince
-        return ldap.dateFromLDAPTimestamp(joined)
+        return self.ldap.dateFromLDAPTimestamp(joined)
 
     def age(self):
         """ Returns the user's age, determined by their birthdate()
