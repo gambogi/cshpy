@@ -1,3 +1,5 @@
+import csh.utils
+
 class Member(object):
     def __init__(self, member, ldap=None):
         """ Creates and returns a member object from which LDAP fields
@@ -5,7 +7,7 @@ class Member(object):
             the object will use that connection to reload its data and
             modify its fields if you choose.
         """
-        self.specialFields = ("memberDict", "ldap")
+        self.specialFields = ("memberDict", "ldap", "specialFields")
         if len(member) < 2:
             self.memberDict = {}
         else:
@@ -16,7 +18,7 @@ class Member(object):
         """ Accesses the internal dictionary representation of
             a member and returns whatever data type it represents.
         """
-        if (attribute == "specialFields" or attribute in self.specialFields):
+        if (attribute in self.specialFields):
             return object.__getattribute__(self, attribute)
         try:
             # Grab the object at that key. It will be a list,
@@ -42,7 +44,7 @@ class Member(object):
             access the internal ldap connection from the constructor
             and modify that parameter.
         """
-        if (attribute == "specialFields" or attribute in self.specialFields):
+        if (attribute in self.specialFields):
             return object.__setattr__(self, attribute, value)
         if attribute in ("memberDict", "ldap"):
             object.__setattr__(self, attribute, value)
@@ -104,7 +106,7 @@ class Member(object):
         """
         if not self.birthday:
             return None
-        return self.ldap.dateFromLDAPTimestamp(self.birthday)
+        return utils.date_from_ldap_timestamp(self.birthday)
 
     def joindate(self):
         """ Converts the user's join date (if it exists) to a datetime.date
@@ -112,8 +114,7 @@ class Member(object):
         """
         if not self.memberSince:
             return None
-        joined = self.memberSince
-        return self.ldap.dateFromLDAPTimestamp(joined)
+        return utils.date_from_ldap_timestamp(self.memberSince)
 
     def age(self):
         """ Returns the user's age, determined by their birthdate()
@@ -145,11 +146,7 @@ class Member(object):
         """
         if self.givenName and self.sn:
             return "{0} {1}".format(self.givenName, self.sn)
-        if self.givenName:
-            return self.givenName
-        if self.sn:
-            return self.sn
-        return self.uid
+        return self.givenName or self.sn or self.uid
 
     def __str__(self):
         """ Constructs a string representation of this person, containing
