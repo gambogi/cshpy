@@ -1,16 +1,18 @@
 from setuptools import setup
-setup( name = 'csh'
-    , version = '0.1.1'
-    , description = 'A collection of utilities for interacting with CSH services.'
-    , author = 'Matt Gambogi'
-    , author_email = 'gambogi@csh.rit.edu'
-    , url = 'http://www.github.com/gambogi/csh-py'
-    , packages = ['csh']
-    , license = 'MIT'
-    , install_requires=[
-        "sasl==0.1.3",
-        "python-ldap==2.4.15",
-        "requests==2.3.0",
-        "wsgiref==0.1.2",
-    ],
-    )
+
+with open('requirements.txt') as r:
+    requirements = r.readlines()
+
+with open('VERSION') as v:
+    version = v.read()
+
+setup(name='csh',
+      version=version,
+      author='Matt Gambogi',
+      author_email='gambogi@csh.rit.edu',
+      url=('https://github.com/gambogi/cshpy'),
+      packages=['csh'],
+      description = 'A collection of utilities for interacting with CSH '
+                    'services.',
+      install_requires=requirements
+)
