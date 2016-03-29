@@ -1,5 +1,6 @@
 from datetime import datetime, date
 
+
 def date_from_ldap_timestamp(timestamp):
     """ Takes an LDAP date (In the form YYYYmmdd
         with whatever is after that) and returns a
