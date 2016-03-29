@@ -15,4 +15,4 @@ setup(name='csh',
       description = 'A collection of utilities for interacting with CSH '
                     'services.',
       install_requires=requirements
-)
+      )

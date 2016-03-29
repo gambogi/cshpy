@@ -9,6 +9,7 @@ GROUPS = 'ou=Groups,dc=csh,dc=rit,dc=edu'
 COMMITTEES = 'ou=Committees,dc=csh,dc=rit,dc=edu'
 APPS = 'ou=Apps,dc=csh,dc=rit,dc=edu'
 
+
 class LDAP:
 
     def __init__(self, user, password,

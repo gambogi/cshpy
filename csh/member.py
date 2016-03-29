@@ -1,5 +1,6 @@
 import csh.utils
 
+
 class Member(object):
     def __init__(self, member, ldap=None):
         """ Creates and returns a member object from which LDAP fields
