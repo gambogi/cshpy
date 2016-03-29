@@ -1,39 +1,38 @@
 import ldap as pyldap
-import ldap.sasl as sasl
-import ldap.modlist
-import re
 from datetime import datetime, date
 from copy import deepcopy
+from collections import namedtuple
 from member import Member
 
+USERS = 'ou=Users,dc=csh,dc=rit,dc=edu'
+GROUPS = 'ou=Groups,dc=csh,dc=rit,dc=edu'
+COMMITTEES = 'ou=Committees,dc=csh,dc=rit,dc=edu'
+APPS = 'ou=Apps,dc=csh,dc=rit,dc=edu'
 
 class LDAP:
 
     def __init__(self, user, password,
                  host='ldaps://ldap.csh.rit.edu:636',
-                 base='ou=Users,dc=csh,dc=rit,dc=edu',
-                 bind='ou=Apps,dc=csh,dc=rit,dc=edu',
+                 base=USERS,
+                 bind=APPS,
                  app=False,
                  objects=False):
         self.host = host
         self.base = base
-        self.users = 'ou=Users,dc=csh,dc=rit,dc=edu'
-        self.groups = 'ou=Groups,dc=csh,dc=rit,dc=edu'
-        self.committees = 'ou=Committees,dc=csh,dc=rit,dc=edu'
-        self.ldap = pyldap.initialize(host)
-        self.ldap.set_option(pyldap.OPT_X_TLS_DEMAND, True)
-        self.ldap.set_option(pyldap.OPT_DEBUG_LEVEL, 255)
+        self.ldap_conn = pyldap.initialize(host)
+        self.ldap_conn.set_option(pyldap.OPT_X_TLS_DEMAND, True)
+        self.ldap_conn.set_option(pyldap.OPT_DEBUG_LEVEL, 255)
         self.objects = objects
 
         if app:
-            self.ldap.simple_bind('uid=' + user + ',' + base, password)
-            # self.ldap.simple_bind('uid='+user+','+bind, password)
+            self.ldap_conn.simple_bind('cn={},{}'.format(user, APPS),
+                                       password)
         else:
             try:
-                auth = sasl.gssapi("")
+                auth = pyldap.sasl.gssapi("")
 
-                self.ldap.sasl_interactive_bind_s("", auth)
-                self.ldap.set_option(pyldap.OPT_DEBUG_LEVEL, 0)
+                self.ldap_conn.sasl_interactive_bind_s("", auth)
+                self.ldap_conn.set_option(pyldap.OPT_DEBUG_LEVEL, 0)
             except pyldap.LDAPError, e:
                 print 'Are you sure you\'ve run kinit?'
                 print e
@@ -69,7 +68,7 @@ class LDAP:
         """
         # self.committee used as base because that's where eboard
         # info is kept
-        committees = self.search(base=self.committees, cn='*')
+        committees = self.search(base=COMMITTEES, cn='*')
         directors = []
         for committee in committees:
             for head in committee[1]['head']:
@@ -81,7 +80,7 @@ class LDAP:
         return directors
 
     def group(self, group_cn):
-        members = self.search(base=self.groups, cn=group_cn)
+        members = self.search(base=GROUPS, cn=group_cn)
         if len(members) == 0:
             return members
         else:
@@ -94,7 +93,7 @@ class LDAP:
         return members
 
     def getGroups(self, member_dn):
-        searchResult = self.search(base=self.groups, member=member_dn)
+        searchResult = self.search(base=GROUPS, member=member_dn)
         if len(searchResult) == 0:
             return []
 
@@ -124,7 +123,7 @@ class LDAP:
         """
         scope = pyldap.SCOPE_SUBTREE
         if not base:
-            base = self.users
+            base = USERS
 
         filterstr = ''
         for key, value in kwargs.iteritems():
@@ -138,16 +137,16 @@ class LDAP:
         if len(kwargs) > 1:
             filterstr = '(&'+filterstr+')'
 
-        result = self.ldap.search_s(base,
-                                    pyldap.SCOPE_SUBTREE,
-                                    filterstr,
-                                    ['*', '+'])
-        if base == self.users:
+        result = self.ldap_conn.search_s(base,
+                                         pyldap.SCOPE_SUBTREE,
+                                         filterstr,
+                                         ['*', '+'])
+        if base == USERS:
             for member in result:
                 groups = self.getGroups(member[0])
                 member[1]['groups'] = groups
                 if 'eboard' in member[1]['groups']:
-                    eboard_search = self.search(base=self.committees,
+                    eboard_search = self.search(base=COMMITTEES,
                                                 head=member[0])
                     if eboard_search:
                         member[1]['committee'] = eboard_search[0][1]['cn'][0]
@@ -158,8 +157,8 @@ class LDAP:
 
     def modify(self, uid, base=False, **kwargs):
         if not base:
-            base = self.users
-        dn = 'uid='+uid+',ou=Users,dc=csh,dc=rit,dc=edu'
+            base = USERS
+        dn = 'uid={},{}'.format(uid, USERS)
         old_attrs = self.member(uid)
         new_attrs = deepcopy(old_attrs)
 
@@ -168,7 +167,7 @@ class LDAP:
                 new_attrs[field] = [str(value)]
         modlist = pyldap.modlist.modifyModlist(old_attrs, new_attrs)
 
-        self.ldap.modify_s(dn, modlist)
+        self.ldap_conn.modify_s(dn, modlist)
 
     def memberObjects(self, searchResults):
         results = []
@@ -176,5 +175,3 @@ class LDAP:
             newMember = Member(result, ldap=self)
             results.append(newMember)
         return results
-
-
