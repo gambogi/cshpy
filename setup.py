@@ -1,18 +1,12 @@
-from setuptools import setup
-
-with open('requirements.txt') as r:
-    requirements = r.readlines()
-
-with open('VERSION') as v:
-    version = v.read()
+from setuptools import setup, find_packages
 
 setup(name='csh',
-      version=version,
+      version=open('VERSION').read().strip(),
       author='Matt Gambogi',
       author_email='gambogi@csh.rit.edu',
       url=('https://github.com/gambogi/cshpy'),
       packages=['csh'],
       description = 'A collection of utilities for interacting with CSH '
                     'services.',
-      install_requires=requirements
-      )
+      install_requires=open('requirements.txt').readlines(),
+      include_package_data=True)
