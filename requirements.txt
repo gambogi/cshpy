@@ -1,5 +1,5 @@
 sasl==0.1.3
 python-ldap==2.4.17
-requests==2.3.0
+requests==2.20.0
 wsgiref==0.1.2
 setuptools-git==1.1
